@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks.Sources;
 using ToDo_App_Backend.Context;
 using ToDo_App_Backend.Models;
 
@@ -27,6 +28,9 @@ namespace ToDo_App_Backend.Services
     public async Task<ToDoTask> CreateAsync(ToDoTask task)
     {
       task.IsDone = false;
+      task.Identifier = Guid.NewGuid();
+      task.CreatedAt = DateTime.UtcNow;
+
       _context.Tasks.Add(task);
       await _context.SaveChangesAsync();
       return task;

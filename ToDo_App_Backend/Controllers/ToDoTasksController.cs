@@ -20,7 +20,7 @@ namespace ToDo_App_Backend.Controllers
     /// <summary>
     /// Get All To Do Tasks 
     /// </summary>
-    /// <returns>Task list</returns>
+    /// <returns>To-Do Task list</returns>
     [HttpGet("GetAllTasks")]
     public async Task<IActionResult> GetAllTasks()
     {
@@ -32,7 +32,7 @@ namespace ToDo_App_Backend.Controllers
     /// </summary>
     /// <param name="identifier"></param>
     /// <returns>Finds specified task entity</returns>
-    [HttpGet("GetTaskByIdent")]
+    [HttpGet("GetTaskByIdent/{identifier}")]
     public async Task<IActionResult> GetTaskByUID(Guid identifier)
     {
       return Ok(await _service.GetByIdentAsync(identifier));
@@ -41,7 +41,8 @@ namespace ToDo_App_Backend.Controllers
     /// <summary>
     /// Create new task
     /// </summary>
-    /// <param name="task"></param>
+    /// <param name="description"></param>
+    /// <param name="deadline"></param>
     /// <returns></returns>
     [HttpPost("CreateTask")]
     public async Task<IActionResult> CreateTask([FromBody] ToDoTask task)
@@ -50,16 +51,16 @@ namespace ToDo_App_Backend.Controllers
         return BadRequest("Description must be at least 11 characters");
       else if (task.Description.Length > 500)
         return BadRequest("Description cannot be more than 500 characters");
-
+      
       return Ok(await _service.CreateAsync(task));
     }
 
     /// <summary>
-    /// Mark task as complete
+    /// Mark task as complete/done
     /// </summary>
     /// <param name="identifier"></param>
     /// <returns></returns>
-    [HttpPut("ToggleTaskDone")]
+    [HttpPut("ToggleTaskDone/{identifier}")]
     public async Task<IActionResult> ToggleDone(Guid identifier)
     {
       var task = await _service.GetByIdentAsync(identifier);
@@ -67,18 +68,18 @@ namespace ToDo_App_Backend.Controllers
         return NotFound();
 
       task.IsDone = !task.IsDone;
-      return await _service.UpdateAsync(task) ? NoContent() : BadRequest();
+      return await _service.UpdateAsync(task) ? Ok(task) : BadRequest();
     }
 
     /// <summary>
-    /// Delete task either that is complete or if user chooses to
+    /// Delete a task that the user chooses to
     /// </summary>
     /// <param name="identifier"></param>
     /// <returns></returns>
-    [HttpDelete("DeleteTask")]
+    [HttpDelete("DeleteTask/{identifier}")]
     public async Task<IActionResult> Delete(Guid identifier)
     {
-      return await _service.DeleteAsync(identifier) ? NoContent() : NotFound();
+      return await _service.DeleteAsync(identifier) ? Ok($"Succesful deletion of task with UID: {identifier}") : NotFound();
     }
   }
 }
