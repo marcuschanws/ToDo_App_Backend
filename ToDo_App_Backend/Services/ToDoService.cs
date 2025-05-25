@@ -29,7 +29,8 @@ namespace ToDo_App_Backend.Services
     {
       task.IsDone = false;
       task.Identifier = Guid.NewGuid();
-      task.CreatedAt = DateTime.UtcNow;
+      System.Globalization.CultureInfo.CurrentCulture.ClearCachedData();
+      task.CreatedAt = DateTime.Now;
 
       _context.Tasks.Add(task);
       await _context.SaveChangesAsync();
