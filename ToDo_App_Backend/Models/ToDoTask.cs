@@ -16,6 +16,7 @@ namespace ToDo_App_Backend.Models
     public string Description { get; set; } = string.Empty;
     public DateTime? Deadline { get; set; }
     public bool IsDone { get; set; } = false;
+    public bool IsPriority { get; set; } = false;
     public DateTime CreatedAt { get; set; }
   }
 }

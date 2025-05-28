@@ -9,5 +9,7 @@ namespace ToDo_App_Backend.Services
     Task<ToDoTask> CreateAsync(ToDoTask task);
     Task<bool> UpdateAsync(ToDoTask task);
     Task<bool> DeleteAsync(Guid ident);
+    Task<ToDoTask> UpdateDeadlineAsync(ToDoTask task, DateTime? deadline);
+    Task<ToDoTask> UpdateDescAsync(ToDoTask task, string description);
   }
 }

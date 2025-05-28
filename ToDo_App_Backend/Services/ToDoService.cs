@@ -39,6 +39,7 @@ namespace ToDo_App_Backend.Services
 
     public async Task<bool> UpdateAsync(ToDoTask task)
     {
+      // Toggle if task state has been altered and save
       _context.Entry(task).State = EntityState.Modified;
       return await _context.SaveChangesAsync() > 0;
     }
@@ -51,6 +52,20 @@ namespace ToDo_App_Backend.Services
 
       _context.Tasks.Remove(task);
       return await _context.SaveChangesAsync() > 0;
+    }
+
+    public Task<ToDoTask> UpdateDeadlineAsync(ToDoTask task, DateTime? deadline)
+    {
+      task.Deadline = deadline;
+      _context.SaveChangesAsync();
+      return Task.FromResult(task);
+    }
+
+    public Task<ToDoTask> UpdateDescAsync(ToDoTask task, string description)
+    {
+      task.Description = description;
+      _context.SaveChangesAsync();
+      return Task.FromResult(task);
     }
   }
 }

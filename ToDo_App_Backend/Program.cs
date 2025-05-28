@@ -49,8 +49,9 @@ try
     await db.Database.EnsureCreatedAsync();
   }
 }
-catch
-{ }
+catch (Exception ex)
+{
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
