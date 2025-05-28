@@ -2,6 +2,8 @@ using ToDo_App_Backend.Context;
 using Microsoft.EntityFrameworkCore;
 using ToDo_App_Backend.Services;
 using ToDo_App_Backend.Models;
+using Microsoft.AspNetCore.StaticFiles;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +54,29 @@ if (app.Environment.IsDevelopment())
 {
   app.UseSwagger();
   app.UseSwaggerUI();
+}
+
+try
+{
+  // Serve static files from wwwroot (React build)
+  app.UseStaticFiles(new StaticFileOptions
+  {
+    ContentTypeProvider = new FileExtensionContentTypeProvider()
+  });
+
+  // Automatically open browser when app starts
+  app.Lifetime.ApplicationStarted.Register(() =>
+  {
+    var url = "http://localhost:3000";
+    Process.Start(new ProcessStartInfo
+    {
+      FileName = url,
+      UseShellExecute = true
+    });
+  });
+}
+catch (Exception ex)
+{ 
 }
 
 app.UseHttpsRedirection();
