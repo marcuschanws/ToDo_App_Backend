@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks.Sources;
+using System.Globalization;
 using ToDo_App_Backend.Context;
 using ToDo_App_Backend.Models;
 
@@ -29,8 +29,11 @@ namespace ToDo_App_Backend.Services
     {
       task.IsDone = false;
       task.Identifier = Guid.NewGuid();
-      System.Globalization.CultureInfo.CurrentCulture.ClearCachedData();
+      CultureInfo.CurrentCulture.ClearCachedData();
       task.CreatedAt = DateTime.Now;
+
+      if (task.Deadline != null && !DateTime.TryParse(task.Deadline.ToString(), CultureInfo.InvariantCulture, out var _))
+        throw new InvalidOperationException($"Deadline specified is invalid: {task.Deadline.ToString()}");
 
       _context.Tasks.Add(task);
       await _context.SaveChangesAsync();
@@ -56,7 +59,13 @@ namespace ToDo_App_Backend.Services
 
     public Task<ToDoTask> UpdateDeadlineAsync(ToDoTask task, DateTime? deadline)
     {
-      task.Deadline = deadline;
+      if (deadline == null)
+        task.Deadline = deadline;
+      else if (DateTime.TryParse(deadline.ToString(), CultureInfo.InvariantCulture, out var newDeadline))
+        task.Deadline = newDeadline;
+      else
+        return Task.FromException(new InvalidOperationException($"Deadline provided is invalid: {deadline.ToString()}")) as Task<ToDoTask>;
+
       _context.SaveChangesAsync();
       return Task.FromResult(task);
     }

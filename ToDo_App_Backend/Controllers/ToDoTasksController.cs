@@ -157,7 +157,12 @@ namespace ToDo_App_Backend.Controllers
           return NotFound();
 
         if (newDeadline != task.Deadline)
+        {
           updatedTask = await _service.UpdateDeadlineAsync(task, newDeadline);
+
+          if(updatedTask == null)
+            return BadRequest($"Deadline specified is invalid: {newDeadline.ToString()}");
+        }
         else
           return BadRequest($"New deadline {newDeadline} is the same as old deadline {task.Deadline} for task with UID: {task.Identifier}");
 
