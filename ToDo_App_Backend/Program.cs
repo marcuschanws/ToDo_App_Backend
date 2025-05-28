@@ -1,17 +1,11 @@
 using ToDo_App_Backend.Context;
 using Microsoft.EntityFrameworkCore;
 using ToDo_App_Backend.Services;
-using ToDo_App_Backend.Logger;
 using ToDo_App_Backend.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Configure logging
-// Bind logging settings
-builder.Services.Configure<LoggingSettings>(
-    builder.Configuration.GetSection("LoggingSettings"));
-builder.Services.AddSingleton<IAppLogger, AppLogger>();
 
 //Configure database
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
