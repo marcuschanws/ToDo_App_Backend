@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	<OutputType>exe</OutputType>
 	<ApplicationIcon>favicon.ico</ApplicationIcon>
 	<IncludeContentInSingleFile>true</IncludeContentInSingleFile>
 	<CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>

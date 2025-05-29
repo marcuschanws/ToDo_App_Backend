@@ -11,10 +11,12 @@ namespace ToDo_App_Backend.Controllers
   public class ToDoTasksController : ControllerBase
   {
     private readonly IToDoService _service;
+    private readonly ILogger<ToDoTasksController> _logger;
 
-    public ToDoTasksController(IToDoService service)
+    public ToDoTasksController(IToDoService service, ILogger<ToDoTasksController> logger)
     {
       _service = service;
+      _logger = logger;
     }
 
     /// <summary>
@@ -26,10 +28,12 @@ namespace ToDo_App_Backend.Controllers
     {
       try
       {
+        _logger.LogInformation("Fetching all tasks...");
         return Ok(await _service.GetAllAsync());
       }
       catch (Exception ex)
       {
+        _logger.LogError(ex, ex.Message);
         return BadRequest(ex.Message);
       }
     }
@@ -44,10 +48,12 @@ namespace ToDo_App_Backend.Controllers
     {
       try
       {
+        _logger.LogInformation($"Getting task with UID: {identifier.ToString()}");
         return Ok(await _service.GetByIdentAsync(identifier));
       }
       catch (Exception ex)
       {
+        _logger.LogError(ex, ex.Message);
         return BadRequest(ex.Message);
       }
     }
@@ -63,6 +69,8 @@ namespace ToDo_App_Backend.Controllers
     {
       try
       {
+        _logger.LogInformation($"Creating task...");
+
         if (task.Description.Length <= 10)
           return BadRequest("Description must be at least 11 characters");
         else if (task.Description.Length > 500)
@@ -72,6 +80,7 @@ namespace ToDo_App_Backend.Controllers
       }
       catch (Exception ex)
       {
+        _logger.LogError(ex, ex.Message);
         return BadRequest(ex.Message);
       }
     }
@@ -86,6 +95,7 @@ namespace ToDo_App_Backend.Controllers
     {
       try
       {
+        _logger.LogInformation($"Changing task status for UID: {identifier.ToString()}");
         var task = await _service.GetByIdentAsync(identifier);
         if (task == null)
           return NotFound();
@@ -95,6 +105,7 @@ namespace ToDo_App_Backend.Controllers
       }
       catch (Exception ex)
       {
+        _logger.LogError(ex, ex.Message);
         return BadRequest(ex.Message);
       }
     }
@@ -109,6 +120,7 @@ namespace ToDo_App_Backend.Controllers
     {
       try
       {
+        _logger.LogInformation($"Changing task priority for UID: {identifier.ToString()}");
         var task = await _service.GetByIdentAsync(identifier);
         if (task == null)
           return NotFound();
@@ -118,6 +130,7 @@ namespace ToDo_App_Backend.Controllers
       }
       catch (Exception ex)
       {
+        _logger.LogError(ex, ex.Message);
         return BadRequest(ex.Message);
       }
     }
@@ -132,10 +145,12 @@ namespace ToDo_App_Backend.Controllers
     {
       try
       {
+        _logger.LogInformation($"Deleting task with UID: {identifier.ToString()}");
         return await _service.DeleteAsync(identifier) ? Ok($"Succesful deletion of task with UID: {identifier}") : NotFound();
       }
       catch (Exception ex)
       {
+        _logger.LogError(ex, ex.Message);
         return BadRequest(ex.Message);
       }
     }
@@ -153,8 +168,11 @@ namespace ToDo_App_Backend.Controllers
       {
         var updatedTask = new ToDoTask();
         var task = await _service.GetByIdentAsync(identifier);
+
         if (task == null)
           return NotFound();
+
+        _logger.LogInformation($"Updating task deadline for UID: {identifier.ToString()} from {task.Deadline.ToString()} to {newDeadline.ToString()} ");
 
         if (newDeadline != task.Deadline)
         {
@@ -170,6 +188,7 @@ namespace ToDo_App_Backend.Controllers
       }
       catch (Exception ex)
       {
+        _logger.LogError(ex, ex.Message);
         return BadRequest(ex.Message);
       }
     }
@@ -190,6 +209,8 @@ namespace ToDo_App_Backend.Controllers
         if (task == null)
           return NotFound();
 
+        _logger.LogInformation($"Updating task description for UID: {identifier.ToString()} from {task.Description} to {newDescription} ");
+
         if (newDescription != task.Description && newDescription.Length > 10 && newDescription.Length <= 500)
           updatedTask = await _service.UpdateDescAsync(task, newDescription);
         else if (newDescription == task.Description)
@@ -201,6 +222,7 @@ namespace ToDo_App_Backend.Controllers
       }
       catch (Exception ex)
       {
+        _logger.LogError(ex, ex.Message);
         return BadRequest(ex.Message);
       }
     }
