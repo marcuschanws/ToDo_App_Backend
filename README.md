@@ -16,3 +16,4 @@ Features:
 
 Changes:
 - Added automatic conversion of all datetimes to UTC. So all DT saved to the server is in UTC format. This DT is then automatically converted to local user DateTime on the frontend.
+- Added logging functionality
