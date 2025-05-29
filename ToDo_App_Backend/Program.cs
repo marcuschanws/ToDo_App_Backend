@@ -1,11 +1,37 @@
 using ToDo_App_Backend.Context;
 using Microsoft.EntityFrameworkCore;
 using ToDo_App_Backend.Services;
-using ToDo_App_Backend.Models;
 using Microsoft.AspNetCore.StaticFiles;
 using System.Diagnostics;
+using Microsoft.Extensions.FileProviders;
 
-var builder = WebApplication.CreateBuilder(args);
+// Get the current executable's directory
+var exePath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName) 
+              ?? AppDomain.CurrentDomain.BaseDirectory;
+
+var wwwrootPath = Path.Combine(exePath, "wwwroot");
+
+// Create wwwroot if it doesn't exist
+if (!Directory.Exists(wwwrootPath))
+{
+  try
+  {
+    Directory.CreateDirectory(wwwrootPath);
+    Console.WriteLine($"Created wwwroot directory at: {wwwrootPath}");
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine($"Error creating wwwroot: {ex.Message}");
+    return;
+  }
+}
+
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+  ContentRootPath = exePath,
+  WebRootPath = wwwrootPath,
+  Args = args,
+});
 
 // Add services to the container.
 
@@ -22,10 +48,18 @@ builder.Services.AddCors(options =>
   options.AddPolicy("AllowFrontend",
       builder => builder.WithOrigins("http://localhost:3000")
                        .AllowAnyMethod()
-                       .AllowAnyHeader());
+                       .AllowAnyHeader()
+                       .AllowCredentials());
 });
 
+// Use Development
 builder.WebHost.UseUrls("https://localhost:7121");
+
+// Production
+//builder.WebHost.UseKestrel().ConfigureKestrel(options =>
+//{
+//  options.ListenAnyIP(7121);
+//});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -56,6 +90,17 @@ if (app.Environment.IsDevelopment())
   app.UseSwaggerUI();
 }
 
+app.UseStaticFiles(new StaticFileOptions
+{
+  FileProvider = new PhysicalFileProvider(wwwrootPath),
+  RequestPath = ""
+});
+
+app.MapFallbackToFile("index.html", new StaticFileOptions
+{
+  FileProvider = new PhysicalFileProvider(wwwrootPath)
+});
+
 try
 {
   // Serve static files from wwwroot (React build)
@@ -64,19 +109,34 @@ try
     ContentTypeProvider = new FileExtensionContentTypeProvider()
   });
 
-  // Automatically open browser when app starts
-  app.Lifetime.ApplicationStarted.Register(() =>
+  if (app.Environment.IsDevelopment())
   {
-    var url = "http://localhost:3000";
-    Process.Start(new ProcessStartInfo
+    app.Lifetime.ApplicationStarted.Register(() =>
     {
-      FileName = url,
-      UseShellExecute = true
+      var url = "http://localhost:3000";
+      Process.Start(new ProcessStartInfo
+      {
+        FileName = url,
+        UseShellExecute = true
+      });
     });
-  });
+  }
+  else
+  {
+    // Automatically open browser when app starts
+    app.Lifetime.ApplicationStarted.Register(() =>
+    {
+      var url = "http://localhost:7121";
+      Process.Start(new ProcessStartInfo
+      {
+        FileName = url,
+        UseShellExecute = true
+      });
+    });
+  }
 }
 catch (Exception ex)
-{ 
+{
 }
 
 app.UseHttpsRedirection();

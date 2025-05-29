@@ -32,9 +32,6 @@ namespace ToDo_App_Backend.Services
       CultureInfo.CurrentCulture.ClearCachedData();
       task.CreatedAt = DateTime.Now;
 
-      if (task.Deadline != null && !DateTime.TryParse(task.Deadline.ToString(), CultureInfo.InvariantCulture, out var _))
-        throw new InvalidOperationException($"Deadline specified is invalid: {task.Deadline.ToString()}");
-
       _context.Tasks.Add(task);
       await _context.SaveChangesAsync();
       return task;
@@ -59,13 +56,7 @@ namespace ToDo_App_Backend.Services
 
     public Task<ToDoTask> UpdateDeadlineAsync(ToDoTask task, DateTime? deadline)
     {
-      if (deadline == null)
-        task.Deadline = deadline;
-      else if (DateTime.TryParse(deadline.ToString(), CultureInfo.InvariantCulture, out var newDeadline))
-        task.Deadline = newDeadline;
-      else
-        return Task.FromException(new InvalidOperationException($"Deadline provided is invalid: {deadline.ToString()}")) as Task<ToDoTask>;
-
+      task.Deadline = deadline;
       _context.SaveChangesAsync();
       return Task.FromResult(task);
     }
